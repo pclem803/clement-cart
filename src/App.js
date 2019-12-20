@@ -95,7 +95,7 @@ const Inventory = ({ products }) => {
               <GetImage code={this_product.sku} />
               <MakeDesc code={this_product} />
             </Box>
-          </Column> 
+          </Column>
         ))}
       </Column.Group>
     </React.Fragment>
