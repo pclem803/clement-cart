@@ -28,7 +28,7 @@ const App = () => {
     };
     fetchProducts();
   }, []);
-
+  console.log(products)
   return (
     <Container>
       <br></br>
@@ -56,57 +56,59 @@ const ShowCart = ({ cartState, addState }) => {
 };
 
 const LoadCart = ({ items }) => {
-  let my_items = items.cart;
-  if (my_items.length===0){
-    return(
+
+  if (items.cart.length === 0) {
+    return (
       <Content>
+        <Notification color="dark">
+          <Notification color="primary" textAlign="centered">
+            Your Cart
+          </Notification>
+          <Notification color="dark" textAlign="centered">
+            Add items to your cart to get started!
+          </Notification>
+        </Notification>
+      </Content>
+    );
+  }
+  return (
+    <Content>
+      <Notification color="dark">
         <Notification color="primary" textAlign="centered">
           Your Cart
         </Notification>
         <Notification color="dark" textAlign="centered">
-          Add items to your cart to get started!
-        </Notification>
-
-      </Content>
-    )
-  }
-  return (
-    <Card>
-      <Box>
-        <Content>
-          <Notification color="primary" textAlign="centered">
-            <Title>Your Cart</Title>
-            {my_items.map(item => (
-              <CartProduct item={item} />
-            ))}
-          </Notification>
-          <Button size="large" color="dark" fullwidth>
+          {items.cart.map(item => (
+            <CartProduct item={item} />
+          ))}
+          <Button size="large" color="primary" fullwidth>
             Checkout
           </Button>
-        </Content>
-      </Box>
-    </Card>
+        </Notification>
+      </Notification>
+    </Content>
   );
 };
 
 const CartProduct = ({ item }) => {
   return (
-    <Notification>
-        <Column size={4}>
-        <Image.Container size={64}>
-          <GetImage code={item.product.sku}></GetImage>
-        </Image.Container>
+    <Notification color="dark">
+      <Column.Group>
+        <Column size={1}>
+          <Image.Container size={64}>
+            <GetImage code={item.sku}></GetImage>
+          </Image.Container>
         </Column>
         <Column size={8}>
-        <Content>
-          <Heading>
-            {item.product.title}
-          </Heading>
-        </Content>
+          <Content>
+            <p>{item.title}<br></br>{item.size}</p>
+          </Content>
         </Column>
+      </Column.Group>
     </Notification>
   );
 };
+
 
 const Banner = ({ cartState }) => (
   <React.Fragment>
@@ -164,40 +166,45 @@ const MakeDesc = ({ code, addState }) => {
 };
 
 const MakeSize = ({ product, state }) => {
+  let temp= {}
+  let temp_product = Object.assign(product, temp)
+  console.log(temp_product)
+
+  let array = state.cart;
   return (
     <Button.Group size="medium" hasAddons align="centered">
       <Button
         onClick={() => {
-          let array = state.cart;
-          array.push({ product });
-          state.setCart(array);
+          temp_product.size="S"
+          array.push(temp_product)
+          state.setCart(array)
         }}
       >
         S
       </Button>
       <Button
         onClick={() => {
-          let array = state.cart;
-          array.push({ product });
-          state.setCart(array);
+          temp_product.size="M"
+          array.push(temp_product)
+          state.setCart(array)
         }}
       >
         M
       </Button>
       <Button
         onClick={() => {
-          let array = state.cart;
-          array.push({ product });
-          state.setCart(array);
+          temp_product.size="L"
+          array.push(temp_product)
+          state.setCart(array)
         }}
       >
         L
       </Button>
       <Button
         onClick={() => {
-          let array = state.cart;
-          array.push({ product });
-          state.setCart(array);
+          temp_product.size="XL"
+          array.push(temp_product)
+          state.setCart(array)
         }}
       >
         XL
@@ -208,7 +215,6 @@ const MakeSize = ({ product, state }) => {
 
 const GetImage = ({ code }) => {
   const url = "/data/products/" + code + "_1.jpg";
-  console.log(url);
   return <Image src={url} />;
 };
 
