@@ -28,7 +28,7 @@ const App = () => {
     };
     fetchProducts();
   }, []);
-  console.log(products)
+
   return (
     <Container>
       <br></br>
@@ -56,7 +56,6 @@ const ShowCart = ({ cartState, addState }) => {
 };
 
 const LoadCart = ({ items }) => {
-
   if (items.cart.length === 0) {
     return (
       <Content>
@@ -101,14 +100,17 @@ const CartProduct = ({ item }) => {
         </Column>
         <Column size={8}>
           <Content>
-            <p>{item.title}<br></br>{item.size}</p>
+            <p>
+              {item.title}
+              <br></br>
+              {item.size}, {item.quantity}
+            </p>
           </Content>
         </Column>
       </Column.Group>
     </Notification>
   );
 };
-
 
 const Banner = ({ cartState }) => (
   <React.Fragment>
@@ -166,45 +168,36 @@ const MakeDesc = ({ code, addState }) => {
 };
 
 const MakeSize = ({ product, state }) => {
-  let temp= {}
-  let temp_product = Object.assign(product, temp)
-  console.log(temp_product)
-
-  let array = state.cart;
   return (
     <Button.Group size="medium" hasAddons align="centered">
       <Button
-        onClick={() => {
-          temp_product.size="S"
-          array.push(temp_product)
-          state.setCart(array)
+        onClick= {()=>{
+          let size= "S"
+          AddtoCart({product, state, size})
         }}
       >
         S
       </Button>
       <Button
-        onClick={() => {
-          temp_product.size="M"
-          array.push(temp_product)
-          state.setCart(array)
+         onClick= {()=>{
+          let size= "M"
+          AddtoCart({product, state, size})
         }}
       >
         M
       </Button>
       <Button
-        onClick={() => {
-          temp_product.size="L"
-          array.push(temp_product)
-          state.setCart(array)
+         onClick= {()=>{
+          let size= "L"
+          AddtoCart({product, state, size})
         }}
       >
         L
       </Button>
       <Button
-        onClick={() => {
-          temp_product.size="XL"
-          array.push(temp_product)
-          state.setCart(array)
+         onClick= {()=>{
+          let size= "XL"
+          AddtoCart({product, state, size})
         }}
       >
         XL
@@ -212,6 +205,32 @@ const MakeSize = ({ product, state }) => {
     </Button.Group>
   );
 };
+
+const AddtoCart = ({ product, state, size }) => {
+  let temp = {};
+  let product_keys = Object.keys(product);
+  for (let i = 0; i < product_keys.length; i++) {
+    temp[product_keys[i]] = product[product_keys[i]];
+  }
+  let temp_product = temp;
+  let array = state.cart;
+  temp_product.size = size;
+  let test_string = temp_product.sku + temp_product.size + "";
+  let helper_array = array.map(object => {
+    let value = "" + object.sku + object.size;
+    return value;
+  });
+  let index = helper_array.indexOf(test_string);
+  if (index !== -1) {
+    array[index].quantity = array[index].quantity + 1;
+  } else {
+    temp_product.quantity = 1;
+    array.push(temp_product);
+  }
+  state.setCart(array);
+};
+
+const Addtocart = () => {};
 
 const GetImage = ({ code }) => {
   const url = "/data/products/" + code + "_1.jpg";
