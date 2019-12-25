@@ -56,12 +56,16 @@ const ShowCart = ({ cartState, addState }) => {
 };
 
 const LoadCart = ({ items }) => {
+  let user_total = FormatMoney(GetTotal(items));
+  let period = user_total.indexOf(".");
+  user_total = user_total.substr(0, period + 3);
+
   if (items.cart.length === 0) {
     return (
       <Content>
         <Notification color="dark">
           <Notification color="primary" textAlign="centered">
-            Your Cart
+            <Content size="large">Your Cart</Content>
           </Notification>
           <Notification color="dark" textAlign="centered">
             Add items to your cart to get started!
@@ -74,39 +78,47 @@ const LoadCart = ({ items }) => {
     <Content>
       <Notification color="dark">
         <Notification color="primary" textAlign="centered">
-          Your Cart
+          <Content size="large">Your Cart</Content>
         </Notification>
         <Notification color="dark" textAlign="centered">
           {items.cart.map(item => (
             <CartProduct item={item} />
           ))}
-          <Button size="large" color="primary" fullwidth>
-            Checkout
-          </Button>
         </Notification>
+      </Notification>
+
+      <Notification color="dark">
+        <Title textAlign="centered">Total: ${user_total}</Title>
+        <Button size="medium" fullwidth color="primary">
+          Checkout
+        </Button>
       </Notification>
     </Content>
   );
 };
 
 const CartProduct = ({ item }) => {
+  let total_price = FormatMoney(item.price);
   return (
     <Notification color="dark">
       <Column.Group>
-        <Column size={1}>
+        <Column size={3}>
           <Image.Container size={64}>
             <GetImage code={item.sku}></GetImage>
           </Image.Container>
         </Column>
-        <Column size={8}>
-          <Content>
+        <Column size={6}>
+          <Content align="left">
             <p>
               {item.title}
               <br></br>
-              {item.size}, {item.quantity}
+              Size: {item.size}
+              <br></br>
+              Quantity: {item.quantity}
             </p>
           </Content>
         </Column>
+        <Column size={4}>Price: ${total_price}</Column>
       </Column.Group>
     </Notification>
   );
@@ -171,33 +183,33 @@ const MakeSize = ({ product, state }) => {
   return (
     <Button.Group size="medium" hasAddons align="centered">
       <Button
-        onClick= {()=>{
-          let size= "S"
-          AddtoCart({product, state, size})
+        onClick={() => {
+          let size = "S";
+          AddtoCart({ product, state, size });
         }}
       >
         S
       </Button>
       <Button
-         onClick= {()=>{
-          let size= "M"
-          AddtoCart({product, state, size})
+        onClick={() => {
+          let size = "M";
+          AddtoCart({ product, state, size });
         }}
       >
         M
       </Button>
       <Button
-         onClick= {()=>{
-          let size= "L"
-          AddtoCart({product, state, size})
+        onClick={() => {
+          let size = "L";
+          AddtoCart({ product, state, size });
         }}
       >
         L
       </Button>
       <Button
-         onClick= {()=>{
-          let size= "XL"
-          AddtoCart({product, state, size})
+        onClick={() => {
+          let size = "XL";
+          AddtoCart({ product, state, size });
         }}
       >
         XL
@@ -230,8 +242,29 @@ const AddtoCart = ({ product, state, size }) => {
   state.setCart(array);
 };
 
-const Addtocart = () => {};
+const GetTotal = state => {
+  let total_price = 0;
+  let product_array = state.cart;
+  for (let i = 0; i < product_array.length; i++) {
+    total_price += Number(product_array[i].price) * product_array[i].quantity;
+  }
+  return total_price;
+};
 
+const FormatMoney = number => {
+  let code_string = number.toString();
+  if (!code_string.includes(".")) {
+    code_string += ".";
+  }
+  let dec_point = code_string.indexOf(".");
+  let cents = code_string.substr(dec_point);
+  let dollar_price = Math.floor(number);
+  while (cents.length < 3) {
+    cents = cents + "0";
+  }
+  let total_price = "" + dollar_price + cents;
+  return total_price;
+};
 const GetImage = ({ code }) => {
   const url = "/data/products/" + code + "_1.jpg";
   return <Image src={url} />;
