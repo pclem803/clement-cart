@@ -33,7 +33,7 @@ const App = () => {
     <Container>
       <br></br>
       <Banner cartState={{ open, openCart }} />
-      <Inventory products={products} addState={{ cart, setCart }} />
+      <Inventory products={products} addState={{ cart, setCart }} cartState={{ open, openCart }}/>
       <ShowCart cartState={{ open, openCart }} addState={{ cart, setCart }} />
     </Container>
   );
@@ -57,8 +57,8 @@ const ShowCart = ({ cartState, addState }) => {
 
 const LoadCart = ({ items }) => {
   let user_total = FormatMoney(GetTotal(items));
-  let period = user_total.indexOf(".");
-  user_total = user_total.substr(0, period + 3);
+  let period = (user_total.indexOf('.'));
+  user_total = user_total.substr(0,period+3);
 
   if (items.cart.length === 0) {
     return (
@@ -76,33 +76,36 @@ const LoadCart = ({ items }) => {
   }
   return (
     <Content>
-      <Notification color="dark">
-        <Notification color="primary" textAlign="centered">
-          <Content size="large">Your Cart</Content>
-        </Notification>
-        <Notification color="dark" textAlign="centered">
-          {items.cart.map(item => (
-            <CartProduct item={item} />
-          ))}
-        </Notification>
-      </Notification>
+          <Notification color="dark">
+            <Notification color="primary" textAlign="centered">
+            <Content size="large">Your Cart</Content>
+            </Notification>
+            <Notification color="dark" textAlign="centered">
+              {items.cart.map(item => (
+                <CartProduct item={item} state={items}/>
+              ))}
+            </Notification>
+          </Notification>
 
-      <Notification color="dark">
-        <Title textAlign="centered">Total: ${user_total}</Title>
-        <Button size="medium" fullwidth color="primary">
-          Checkout
-        </Button>
-      </Notification>
+          <Notification color="dark">
+            <Title textAlign="centered">Total: ${user_total}</Title>
+            <Button size="medium" fullwidth color="primary" onClick={()=>
+              alert("Your total is: $"+ user_total)
+            }>
+              Checkout
+            </Button>
+          </Notification>
     </Content>
   );
 };
 
-const CartProduct = ({ item }) => {
+const CartProduct = ({ item, state }) => {
   let total_price = FormatMoney(item.price);
+  let size=item.size
   return (
     <Notification color="dark">
       <Column.Group>
-        <Column size={3}>
+        <Column size={3} align="left">
           <Image.Container size={64}>
             <GetImage code={item.sku}></GetImage>
           </Image.Container>
@@ -112,17 +115,45 @@ const CartProduct = ({ item }) => {
             <p>
               {item.title}
               <br></br>
-              Size: {item.size}
+              Size: {size}
               <br></br>
               Quantity: {item.quantity}
             </p>
           </Content>
         </Column>
-        <Column size={4}>Price: ${total_price}</Column>
+        <Column size={4} textAlign="right">
+          <p>Price: ${total_price}</p>
+          <Button.Group align="right" hasAddons >
+            <Button size="medium" color="primary" outlined>-</Button>
+            <Button size="medium" color="primary" outlined onClick={()=>{
+            }}
+              >+</Button>
+          </Button.Group>
+        </Column>
       </Column.Group>
     </Notification>
   );
 };
+
+const AddItem = (product, state, size)=>{
+  let temp = {};
+  let product_keys = Object.keys(product);
+  for (let i = 0; i < product_keys.length; i++) {
+    temp[product_keys[i]] = product[product_keys[i]];
+  }
+  let temp_product = temp;
+  let array = state.cart;
+  temp_product.size = size;
+  let test_string = temp_product.sku + temp_product.size + "";
+  let helper_array = array.map(object => {
+    let value = "" + object.sku + object.size;
+    return value;
+  });
+  let index = helper_array.indexOf(test_string);
+  array[index].quantity = array[index].quantity + 1;
+  state.setCart(array);
+
+}
 
 const Banner = ({ cartState }) => (
   <React.Fragment>
@@ -141,7 +172,7 @@ const Banner = ({ cartState }) => (
   </React.Fragment>
 );
 
-const Inventory = ({ products, addState }) => {
+const Inventory = ({ products, addState, cartState }) => {
   return (
     <React.Fragment>
       <Column.Group breakpoint="desktop" multiline gapSize={6}>
@@ -150,7 +181,7 @@ const Inventory = ({ products, addState }) => {
             <Box color="primary" textAlign="center" size={20}>
               <Content>{this_product.title}</Content>
               <GetImage code={this_product.sku} />
-              <MakeDesc code={this_product} addState={addState} />
+              <MakeDesc code={this_product} addState={addState} cartState={cartState} />
             </Box>
           </Column>
         ))}
@@ -159,7 +190,7 @@ const Inventory = ({ products, addState }) => {
   );
 };
 
-const MakeDesc = ({ code, addState }) => {
+const MakeDesc = ({ code, addState, cartState }) => {
   let code_string = code.price.toString();
   if (!code_string.includes(".")) {
     code_string += ".";
@@ -174,18 +205,19 @@ const MakeDesc = ({ code, addState }) => {
     <Content size="large">
       $<strong>{dollar_price}</strong>
       {cents}
-      <MakeSize product={code} state={addState} />
+      <MakeSize product={code} state={addState} cartState={cartState} />
     </Content>
   );
 };
 
-const MakeSize = ({ product, state }) => {
+const MakeSize = ({ product, state, cartState }) => {
   return (
     <Button.Group size="medium" hasAddons align="centered">
       <Button
         onClick={() => {
           let size = "S";
           AddtoCart({ product, state, size });
+          cartState.openCart(true)
         }}
       >
         S
@@ -194,6 +226,7 @@ const MakeSize = ({ product, state }) => {
         onClick={() => {
           let size = "M";
           AddtoCart({ product, state, size });
+          cartState.openCart(true)
         }}
       >
         M
@@ -202,6 +235,7 @@ const MakeSize = ({ product, state }) => {
         onClick={() => {
           let size = "L";
           AddtoCart({ product, state, size });
+          cartState.openCart(true)
         }}
       >
         L
@@ -210,6 +244,7 @@ const MakeSize = ({ product, state }) => {
         onClick={() => {
           let size = "XL";
           AddtoCart({ product, state, size });
+          cartState.openCart(true)
         }}
       >
         XL
@@ -218,7 +253,9 @@ const MakeSize = ({ product, state }) => {
   );
 };
 
-const AddtoCart = ({ product, state, size }) => {
+const AddtoCart = ({ product, state, size}) => {
+  console.log("adding to cart")
+  console.log(product)
   let temp = {};
   let product_keys = Object.keys(product);
   for (let i = 0; i < product_keys.length; i++) {
